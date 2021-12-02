@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
           height: 50,
           child: ElevatedButton(
             style: style,
-            onPressed: () =>   Navigator.pushReplacementNamed(context, 'pedidos'),
+            onPressed: () =>   Navigator.pushNamed(context, 'pedidos'),
             child: Text('Iniciar Sesión'),
           ),
         ),
