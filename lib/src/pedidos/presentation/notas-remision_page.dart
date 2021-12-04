@@ -37,7 +37,14 @@ class PedidosPage extends StatelessWidget {
           Flexible(
             child: _loadData(notasRemision, context),
           )
-        ])));
+        ])
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Navigator.pushNamed(context, 'firma'),
+          backgroundColor: Colors.black87,
+          child: Icon(Icons.app_registration_rounded),
+          ),
+        );
   }
 
   _loadData(PedidosBloc notaRemision, BuildContext context) {
@@ -55,12 +62,12 @@ class PedidosPage extends StatelessWidget {
             child: Center(child: CircularProgressIndicator()),
           );
         } else {
-          List<NotaRemisionModel>? pedidosModel = snapshot.data;
+          List<NotaRemisionModel>? notasModel = snapshot.data;
 
           return ListView.builder(
             shrinkWrap: true,
-            itemCount: 10,
-            itemBuilder: (context, i) => _crearItem(context, pedidosModel![i]),
+            itemCount: notasModel!.length,
+            itemBuilder: (context, i) => _crearItem(context, notasModel[i]),
           );
         }
       },
