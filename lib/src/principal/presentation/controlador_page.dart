@@ -22,7 +22,6 @@ class _ControladorPageState extends State<ControladorPage> {
     // if (token != null) {
     //   Navigator.pushReplacementNamed(context, 'consultaPedidos');
     // } else {
-      print('ENTRO AL PROCESO');
       Navigator.pushReplacementNamed(context, 'login');
     // }
   }

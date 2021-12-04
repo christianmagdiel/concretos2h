@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+*.sqlite
+/.vs/config/applicationhost.config
+/.vs/concretos2h/v15/Browse.VC.opendb
+/.vs/concretos2h/v15/Browse.VC.db
