@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
           const Locale('es', ''), // Spanish, no country code
         ],
         debugShowCheckedModeBanner: false,
-        initialRoute: 'firma',
+        initialRoute: 'login',
         routes: getRoutes());
   }
 }
