@@ -1,11 +1,20 @@
+import 'dart:convert';
+import 'dart:io';
+// import 'dart:js';
+
+import 'package:concretos2h/src/widgets/pdfScreen.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:concretos2h/src/pedidos/data/blocs/pedidos_bloc.dart';
 import 'package:concretos2h/src/pedidos/data/models/nota-remision_model.dart';
+// import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
-import 'dart:convert';
-import 'package:convert/convert.dart';
+import 'package:concretos2h/src/principal/data/globales.dart' as global;
+// import 'dart:convert';
+// import 'package:convert/convert.dart';
 
 class PedidosPage extends StatefulWidget {
   const PedidosPage({Key? key}) : super(key: key);
@@ -16,8 +25,8 @@ class PedidosPage extends StatefulWidget {
 
 class _PedidosPageState extends State<PedidosPage> {
   final GlobalKey<SfSignaturePadState> _signaturePadKey = GlobalKey();
-  late Uint8List _signatureData;
-  bool _isSigned = false;
+  // late Uint8List _signatureData;
+  // bool _isSigned = false;
   @override
   Widget build(BuildContext context) {
     PedidosBloc notasRemision = new PedidosBloc();
@@ -48,11 +57,6 @@ class _PedidosPageState extends State<PedidosPage> {
           child: _loadData(notasRemision, context),
         )
       ])),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showPopup(context),
-        backgroundColor: Colors.black87,
-        child: Icon(Icons.app_registration_rounded),
-      ),
     );
   }
 
@@ -100,7 +104,7 @@ class _PedidosPageState extends State<PedidosPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ElevatedButton(
-            onPressed: () => mostrarNotaRemision,
+            onPressed: () => mostrarNotaRemision(context),
             child: Text('Mostrar PDF'),
           ),
         ],
@@ -108,9 +112,40 @@ class _PedidosPageState extends State<PedidosPage> {
     );
   }
 
-  mostrarNotaRemision() {
-    final args = [];
-    String pdfBase64 = "";
+  mostrarNotaRemision(BuildContext context) async {
+    print("entro");
+    // final args = [];
+    // String pdfBase64 = "";
+    final notaRemision = new PedidosBloc();
+    await notaRemision.mostrarPdf();
+
+    print("Base 64");
+    Uint8List bytes = base64Decode(global.data64.replaceAll('\n', ''));
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/example.pdf");
+    await file.writeAsBytes(bytes.buffer.asUint8List());
+
+    
+    // await OpenFile.open("${output.path}/example.pdf");
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => PDFScreen(bytes)));
+
+    // showDialog<Widget>(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return StatefulBuilder(
+    //         builder: (BuildContext context,
+    //             void Function(void Function()) setState) {
+    //           return AlertDialog(
+    //             content: Container(
+    //               height: 400,
+    //               width: 400,
+    //               child: SfPdfViewer.memory(bytes, initialZoomLevel: 1,),
+    //             ),
+    //           );
+    //         },
+    //       );
+    //     });
   }
 
   void _showPopup(BuildContext context) {
@@ -224,14 +259,14 @@ class _PedidosPageState extends State<PedidosPage> {
     }
 
     setState(() {
-      _signatureData = data;
+      // _signatureData = data;
       // Image.memory(_signatureData) ASI SE MUESTRA LA IMAGGEN EN UN CONTAINER
     });
   }
 
   void _handleClearButtonPressed() {
-    Navigator.of(context).pop();
-    _signaturePadKey.currentState!.clear();
-    _isSigned = false;
+  // Navigator.of(context).pop();
+  //   _signaturePadKey.currentState!.clear();
+    // _isSigned = false;
   }
 }

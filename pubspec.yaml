@@ -30,6 +30,9 @@ dependencies:
   rxdart: 
   syncfusion_flutter_signaturepad: ^19.3.56
   convert: ^3.0.1
+  path_provider: ^2.0.7
+  open_file: ^3.2.1
+  syncfusion_flutter_pdfviewer: ^19.3.57-beta
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
