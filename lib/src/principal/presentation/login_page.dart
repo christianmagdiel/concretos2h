@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:concretos2h/src/widgets/fondoPantalla.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -8,7 +9,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   final _usuarioTxt = TextEditingController();
   final _passwordTxt = TextEditingController();
   var focusNode = FocusNode();
@@ -25,42 +25,34 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    GlobalKey<FormState> keyForm = new GlobalKey();
-
+    // GlobalKey<FormState> keyForm = new GlobalKey();
+    final size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(25),
+          preferredSize: Size.fromHeight(0),
           child: AppBar(
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Concretos 2H',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w300),
-                ),
-                Text(
-                  'INICIAR SESÍON',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
+            elevation: 5,
           ),
         ),
         body: Center(
           child: new SingleChildScrollView(
-            child: new Container(
-              margin: new EdgeInsets.all(20.0),
-              child: new Form(
-                key: keyForm,
-                child: formulario(), //Este metodo lo crearemos mas adelante
-              ),
+            child: Stack(
+              alignment: AlignmentDirectional.center,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: size.height,
+                  // color: Colors.red,
+                  child: FondoPantalla(),
+                ),
+                Container(
+                  margin: new EdgeInsets.all(20.0),
+                  child: new Form(
+                    // key: keyForm,
+                    child: formulario(), //Este metodo lo crearemos mas adelante
+                  ),
+                ),
+              ],
             ),
           ),
         ));
@@ -68,38 +60,51 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget formulario() {
     final ButtonStyle style = ElevatedButton.styleFrom(
-        textStyle: const TextStyle(fontSize: 20),
-        elevation: 5,
-        
-        shape: BeveledRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-        shadowColor: Colors.blue);
+        elevation: 10,
+        shape: BeveledRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(3))),
+        shadowColor: Colors.black);
 
     return Column(
       children: <Widget>[
-        Text('Bienvenido'),
+        Image.asset('assets/images/concreto2h.png', fit: BoxFit.fill),
+        Text(
+          'Bienvenido',
+          style: TextStyle(fontSize: 30),
+        ),
+        SizedBox(height: 25),
+        Container(
+            child: TextField(
+                style: TextStyle(color: Colors.black, fontSize: 18),
+                decoration: InputDecoration(
+                  fillColor: Colors.white,
+                  filled: true,
+                  hintText: "Usuario",
+                  helperText: "example@concretos2h.com",
+                  border: const OutlineInputBorder(),
+                ))),
         SizedBox(height: 10),
         Container(
             child: TextField(
+                obscureText: true,
+                style: TextStyle(color: Colors.black, fontSize: 18),
                 decoration: InputDecoration(
-          hintText: "Usuario",
-          helperText: "example@concretos2h.com",
-          border: const OutlineInputBorder(),
-        ))),
-        SizedBox(height: 10),
-        Container(
-            child: TextField(
-                decoration: InputDecoration(
-          hintText: "Contraseña",
-          border: const OutlineInputBorder(),
-        ))),
+                  fillColor: Colors.white,
+                  filled: true,
+                  hintText: "Contraseña",
+                  border: const OutlineInputBorder(),
+                ))),
         SizedBox(height: 10),
         Container(
           width: 200,
           height: 50,
           child: ElevatedButton(
             style: style,
-            onPressed: () =>   Navigator.pushNamed(context, 'pedidos'),
-            child: Text('Iniciar Sesión'),
+            child: Text(
+              'Iniciar Sesión',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            onPressed: () => Navigator.pushNamed(context, 'pedidos'),
           ),
         ),
       ],

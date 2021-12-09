@@ -1,20 +1,12 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
-// import 'dart:js';
-
-import 'package:concretos2h/src/widgets/pdfScreen.dart';
-import 'package:flutter/material.dart';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
+import 'package:path_provider/path_provider.dart';
+import 'package:concretos2h/src/widgets/pdfScreen.dart';
 import 'package:concretos2h/src/pedidos/data/blocs/pedidos_bloc.dart';
 import 'package:concretos2h/src/pedidos/data/models/nota-remision_model.dart';
-// import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-// import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:concretos2h/src/principal/data/globales.dart' as global;
-// import 'dart:convert';
-// import 'package:convert/convert.dart';
 
 class PedidosPage extends StatefulWidget {
   const PedidosPage({Key? key}) : super(key: key);
@@ -24,14 +16,19 @@ class PedidosPage extends StatefulWidget {
 }
 
 class _PedidosPageState extends State<PedidosPage> {
-  final GlobalKey<SfSignaturePadState> _signaturePadKey = GlobalKey();
-  // late Uint8List _signatureData;
-  // bool _isSigned = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  PedidosBloc notasRemision = new PedidosBloc();
+
+  @override
+  void initState() {
+    notasRemision.cargarNotasRemision();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    PedidosBloc notasRemision = new PedidosBloc();
-
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Consulta de notas de remisión'),
         actions: <Widget>[
@@ -60,40 +57,70 @@ class _PedidosPageState extends State<PedidosPage> {
     );
   }
 
-  _loadData(PedidosBloc notaRemision, BuildContext context) {
+  _loadData(PedidosBloc notaRemisionBloc, BuildContext context) {
     final size = MediaQuery.of(context).size;
-    notaRemision.cargarNotasRemision();
+
     return StreamBuilder(
-      stream: notaRemision.notasRemisionStream,
-      builder: (BuildContext context,
+      stream: notaRemisionBloc.notasRemisionStream,
+      builder: (BuildContext contextPrincipal,
           AsyncSnapshot<List<NotaRemisionModel>> snapshot) {
         if (!snapshot.hasData ||
             snapshot.connectionState == ConnectionState.waiting ||
-            (notaRemision.cargandoNotasRemision)) {
+            (notaRemisionBloc.cargandoNotasRemision)) {
           return Padding(
             padding: EdgeInsets.only(bottom: size.height * .35),
             child: Center(child: CircularProgressIndicator()),
           );
         } else {
           List<NotaRemisionModel>? notasModel = snapshot.data;
-
-          return ListView.builder(
-            shrinkWrap: true,
-            itemCount: notasModel!.length,
-            itemBuilder: (context, i) => _crearItem(context, notasModel[i]),
-          );
+          return StreamBuilder<Object>(
+              stream: notaRemisionBloc.isLoadingStream,
+              initialData: false,
+              builder: (BuildContext contextLoading, AsyncSnapshot snapshot) {
+                if (!snapshot.data) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: notasModel!.length,
+                    itemBuilder: (BuildContext contextLista, i) => _crearItem(
+                        contextPrincipal, notasModel[i], notaRemisionBloc),
+                  );
+                } else {
+                  return Container(
+                    height: 30,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Espere un momento por favor...',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: LinearProgressIndicator(
+                            backgroundColor: Colors.grey,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              });
         }
       },
     );
   }
 
-  Widget _crearItem(BuildContext context, NotaRemisionModel nota) {
+  Widget _crearItem(BuildContext context, NotaRemisionModel nota,
+      PedidosBloc notaRemisionBloc) {
     return ListTile(
       leading: Padding(
         padding: const EdgeInsets.only(top: 10.0),
         child: Column(
           children: [
-            Text('${nota.folioCarga}'),
+            // Text('${nota.folioCarga}'),
             Text('${nota.folioNotaRemision}'),
           ],
         ),
@@ -104,169 +131,26 @@ class _PedidosPageState extends State<PedidosPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ElevatedButton(
-            onPressed: () => mostrarNotaRemision(context),
+            onPressed: () =>
+                mostrarNotaRemision(context, notaRemisionBloc, nota),
             child: Text('Mostrar PDF'),
-          ),
+          )
         ],
       ),
     );
   }
 
-  mostrarNotaRemision(BuildContext context) async {
-    print("entro");
-    // final args = [];
-    // String pdfBase64 = "";
-    final notaRemision = new PedidosBloc();
-    await notaRemision.mostrarPdf();
-
-    print("Base 64");
+  Future<void> mostrarNotaRemision(BuildContext context,
+      PedidosBloc notaRemisionBloc, NotaRemisionModel nota) async {
+    await notaRemisionBloc.mostrarPdf(nota.idNotaRemisionEnc);
     Uint8List bytes = base64Decode(global.data64.replaceAll('\n', ''));
     final output = await getTemporaryDirectory();
-    final file = File("${output.path}/example.pdf");
+    final file = File("${output.path}/notaRemision.pdf");
     await file.writeAsBytes(bytes.buffer.asUint8List());
 
-    
-    // await OpenFile.open("${output.path}/example.pdf");
-
-    Navigator.push(context, MaterialPageRoute(builder: (context) => PDFScreen(bytes)));
-
-    // showDialog<Widget>(
-    //     context: context,
-    //     builder: (BuildContext context) {
-    //       return StatefulBuilder(
-    //         builder: (BuildContext context,
-    //             void Function(void Function()) setState) {
-    //           return AlertDialog(
-    //             content: Container(
-    //               height: 400,
-    //               width: 400,
-    //               child: SfPdfViewer.memory(bytes, initialZoomLevel: 1,),
-    //             ),
-    //           );
-    //         },
-    //       );
-    //     });
-  }
-
-  void _showPopup(BuildContext context) {
-    // _isSigned = false;
-
-    // if (_isWebOrDesktop) {
-    //   _backgroundColor = _isDark ? model.webBackgroundColor : Colors.white;
-    // }
-
-    showDialog<Widget>(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder:
-              (BuildContext context, void Function(void Function()) setState) {
-            final Color? backgroundColor = Colors.white;
-            final Color textColor = Colors.black;
-
-            return AlertDialog(
-              insetPadding: const EdgeInsets.all(12.0),
-              backgroundColor: backgroundColor,
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text('Ingresa tu firma',
-                      style: TextStyle(
-                          color: textColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Roboto-Medium')),
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child:
-                        Icon(Icons.clear, color: Colors.grey[400], size: 24.0),
-                  )
-                ],
-              ),
-              titlePadding: const EdgeInsets.all(16.0),
-              content: SingleChildScrollView(
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300)),
-                  width: MediaQuery.of(context).size.width < 306
-                      ? MediaQuery.of(context).size.width
-                      : 306,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                          width: MediaQuery.of(context).size.width < 306
-                              ? MediaQuery.of(context).size.width
-                              : 306,
-                          height: 172,
-                          child: SfSignaturePad(key: _signaturePadKey))
-                    ],
-                  ),
-                ),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 0, horizontal: 12.0),
-              actionsPadding: const EdgeInsets.all(8.0),
-              buttonPadding: EdgeInsets.zero,
-              actions: <Widget>[
-                TextButton(
-                  onPressed: _handleClearButtonPressed,
-                  style: ButtonStyle(
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.red),
-                  ),
-                  child: const Text(
-                    'Cancelar',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Roboto-Medium'),
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                TextButton(
-                  onPressed: () {
-                    _handleSaveButtonPressed();
-                    Navigator.of(context).pop();
-                  },
-                  // style: ButtonStyle(
-                  //   foregroundColor: MaterialStateProperty.all<Color>(
-                  //       model.currentPaletteColor),
-                  // ),
-                  child: const Text('Guardar',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Roboto-Medium')),
-                )
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _handleSaveButtonPressed() async {
-    late Uint8List data;
-
-    final ui.Image imageData =
-        await _signaturePadKey.currentState!.toImage(pixelRatio: 3.0);
-    final ByteData? bytes =
-        await imageData.toByteData(format: ui.ImageByteFormat.png);
-    if (bytes != null) {
-      data = bytes.buffer.asUint8List();
-    }
-
-    setState(() {
-      // _signatureData = data;
-      // Image.memory(_signatureData) ASI SE MUESTRA LA IMAGGEN EN UN CONTAINER
-    });
-  }
-
-  void _handleClearButtonPressed() {
-  // Navigator.of(context).pop();
-  //   _signaturePadKey.currentState!.clear();
-    // _isSigned = false;
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PDFScreen(bytes, nota.idNotaRemisionEnc)));
   }
 }
