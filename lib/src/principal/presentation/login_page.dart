@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:concretos2h/src/principal/data/blocs/login_bloc.dart';
 import 'package:concretos2h/src/widgets/fondoPantalla.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,18 +10,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _usuarioTxt = TextEditingController();
-  final _passwordTxt = TextEditingController();
-  var focusNode = FocusNode();
-  String idAndroid = "";
-  String dispositivo = "";
-  // bool _validateUser = false;
-  // bool _validatePassword = false;
+  String _usuarioTxt = "";
+  String _passwordTxt = "";
+
   @override
-  void dispose() {
-    _usuarioTxt.dispose();
-    _passwordTxt.dispose();
-    super.dispose();
+  void initState() {
+    this._usuarioTxt = "";
+    this._passwordTxt = "";
+    super.initState();
   }
 
   @override
@@ -59,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget formulario() {
+    final blocLogin = new LoginBloc();
     final ButtonStyle style = ElevatedButton.styleFrom(
         elevation: 10,
         shape: BeveledRectangleBorder(
@@ -75,39 +73,78 @@ class _LoginPageState extends State<LoginPage> {
         SizedBox(height: 25),
         Container(
             child: TextField(
-                style: TextStyle(color: Colors.black, fontSize: 18),
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  hintText: "Usuario",
-                  helperText: "example@concretos2h.com",
-                  border: const OutlineInputBorder(),
-                ))),
+          autofocus: true,
+          style: TextStyle(color: Colors.black, fontSize: 18),
+          decoration: InputDecoration(
+            fillColor: Colors.white,
+            filled: true,
+            hintText: "Usuario",
+            helperText: "example@concretos2h.com",
+            border: const OutlineInputBorder(),
+          ),
+          onChanged: (value) => setState(() {
+            _usuarioTxt = value;
+          }),
+        )),
         SizedBox(height: 10),
         Container(
             child: TextField(
-                obscureText: true,
-                style: TextStyle(color: Colors.black, fontSize: 18),
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  filled: true,
-                  hintText: "Contraseña",
-                  border: const OutlineInputBorder(),
-                ))),
+          obscureText: true,
+          style: TextStyle(color: Colors.black, fontSize: 18),
+          decoration: InputDecoration(
+            fillColor: Colors.white,
+            filled: true,
+            hintText: "Contraseña",
+            border: const OutlineInputBorder(),
+          ),
+          onChanged: (value) => setState(() {
+            _passwordTxt = value;
+          }),
+        )),
         SizedBox(height: 10),
         Container(
           width: 200,
           height: 50,
-          child: ElevatedButton(
-            style: style,
-            child: Text(
-              'Iniciar Sesión',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            onPressed: () => Navigator.pushNamed(context, 'pedidos'),
-          ),
+          child: StreamBuilder<Object>(
+              stream: blocLogin.isLoadingStream,
+              initialData: false,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (!snapshot.data) {
+                  return ElevatedButton(
+                    style: style,
+                    child: Text(
+                      'Iniciar Sesión',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () => iniciarSesion(blocLogin),
+                  );
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              }),
         ),
       ],
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  iniciarSesion(LoginBloc bloc) async {
+    if (_usuarioTxt.length > 0 && _passwordTxt.length > 0) {
+      final result = await bloc.login(_usuarioTxt, _passwordTxt);
+
+      if (result["ok"]) {
+        inicializarDatos();
+        Navigator.pushNamed(context, 'pedidos');
+      }
+    } else {
+      print('Ingrese sus credenciales correspondientes para iniciar sesión');
+    }
+  }
+
+  void inicializarDatos() {}
 }

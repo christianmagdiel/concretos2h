@@ -1,18 +1,23 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
 class Session {
   final key = 'SESION';
   // Create storage
+  static final storageStatica = new FlutterSecureStorage();
   final storage = new FlutterSecureStorage();
 
-  set(String token, String refreshToken, int expiresIn) async {
+  set(String token, String refreshToken, int expiresIn, int codUsuario,
+      String usuario, String correo, String puesto) async {
     final data = {
       "accessToken": token,
       "refreshToken": refreshToken,
       "expiresIn": expiresIn,
-      "createAt": DateTime.now().toString()
+      "createAt": DateTime.now().toString(),
+      "codUsuario": codUsuario,
+      "nombreUsuario": usuario,
+      "correoUsuario": correo,
+      "puestoUsuario": puesto
     };
     await storage.write(key: key, value: jsonEncode(data));
   }
@@ -26,7 +31,7 @@ class Session {
     }
   }
 
-  Future<String> accessToken () async{
+  Future<String> accessToken() async {
     final data = await storage.read(key: key);
     final resp = jsonDecode(data.toString());
     String token = resp['accessToken'];
@@ -34,11 +39,13 @@ class Session {
   }
 
   // // Delete all
-  deleteSession() async{
+  deleteSession() async {
     await storage.deleteAll();
   }
 
-  
+  static deleteSessionGlobal() async {
+    await storageStatica.deleteAll();
+  }
 // // Read all values
 // Map<String, String> allValues = await storage.readAll();
 
@@ -46,5 +53,3 @@ class Session {
 // await storage.delete(key: key);
 
 }
-
-

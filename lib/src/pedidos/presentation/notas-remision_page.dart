@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:concretos2h/src/widgets/pdfScreen.dart';
 import 'package:concretos2h/src/pedidos/data/blocs/pedidos_bloc.dart';
 import 'package:concretos2h/src/pedidos/data/models/nota-remision_model.dart';
+import 'package:concretos2h/src/widgets/drawer.dart';
 import 'package:concretos2h/src/principal/data/globales.dart' as global;
 
 class PedidosPage extends StatefulWidget {
@@ -31,14 +32,12 @@ class _PedidosPageState extends State<PedidosPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Consulta de notas de remisión'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {},
-          ),
-          //  PerfilWidget(),
-        ],
       ),
+      drawer: Theme(
+        data: Theme.of(context).copyWith(
+          canvasColor: Colors.white
+        ),
+        child: CustomDrawer.getDrawer(context)),
       body: SafeArea(
           child: Column(children: <Widget>[
         Align(
@@ -121,7 +120,7 @@ class _PedidosPageState extends State<PedidosPage> {
         child: Column(
           children: [
             // Text('${nota.folioCarga}'),
-            Text('${nota.folioNotaRemision}'),
+            Text('${nota.idNotaRemisionEnc}'),
           ],
         ),
       ),
@@ -133,8 +132,9 @@ class _PedidosPageState extends State<PedidosPage> {
           ElevatedButton(
             onPressed: () =>
                 mostrarNotaRemision(context, notaRemisionBloc, nota),
-            child: Text('Mostrar PDF'),
-          )
+            child: Text('PDF - ${nota.firmaElectronica}'),
+          ),
+          // SizedBox(width: 1,),
         ],
       ),
     );
@@ -143,7 +143,7 @@ class _PedidosPageState extends State<PedidosPage> {
   Future<void> mostrarNotaRemision(BuildContext context,
       PedidosBloc notaRemisionBloc, NotaRemisionModel nota) async {
     await notaRemisionBloc.mostrarPdf(nota.idNotaRemisionEnc);
-    Uint8List bytes = base64Decode(global.data64.replaceAll('\n', ''));
+    Uint8List bytes = base64Decode(global.pdfDataBase64.replaceAll('\n', ''));
     final output = await getTemporaryDirectory();
     final file = File("${output.path}/notaRemision.pdf");
     await file.writeAsBytes(bytes.buffer.asUint8List());

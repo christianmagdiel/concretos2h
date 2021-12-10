@@ -161,7 +161,7 @@ class _PDFScreenState extends State<PDFScreen> {
         await notasRemision.guardarFirma(data, this.widget.idNotaRemisionEnc);
 
     if (result['ok']) {
-      Navigator.pop(context);
+      Navigator.pushReplacementNamed(context, 'pedidos');
     }
     // setState(() {
     // _signatureData = data;

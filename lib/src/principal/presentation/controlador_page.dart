@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:concretos2h/src/app/auth_api.dart';
 import 'package:flutter/cupertino.dart';
 
 
@@ -9,7 +10,7 @@ class ControladorPage extends StatefulWidget {
 }
 
 class _ControladorPageState extends State<ControladorPage> {
-
+  final _authApi = new AuthApi();
   @override
   void initState() {
     super.initState();
@@ -17,13 +18,12 @@ class _ControladorPageState extends State<ControladorPage> {
   }
 
   _check() async {
-    
-    // final token = await _authApi.getAccessToken();
-    // if (token != null) {
-    //   Navigator.pushReplacementNamed(context, 'consultaPedidos');
-    // } else {
+    final token = await _authApi.getAccessToken();
+    if (token.isNotEmpty) {
+      Navigator.pushReplacementNamed(context, 'pedidos');
+    } else {
       Navigator.pushReplacementNamed(context, 'login');
-    // }
+    }
   }
 
   @override

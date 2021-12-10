@@ -43,7 +43,7 @@ class PedidosBloc {
   Future mostrarPdf(int idNota) async {
     _cargandoController.sink.add(true);
     final nota = await _pedidosProvider.obtenerPdfNotaRemision(idNota);
-    global.data64 = nota;
+    global.pdfDataBase64 = nota;
     _cargandoController.sink.add(false);
   }
 

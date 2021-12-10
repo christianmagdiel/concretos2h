@@ -11,13 +11,14 @@ class NotaRemisionModel {
   int folioCarga;
   String cliente;
   String obra;
-
+  bool firmaElectronica;
   NotaRemisionModel(
       {required this.idNotaRemisionEnc,
       required this.folioNotaRemision,
       required this.folioCarga,
       required this.cliente,
-      required this.obra});
+      required this.obra,
+      required this.firmaElectronica});
 
   factory NotaRemisionModel.fromJson(Map<String, dynamic> json) =>
       NotaRemisionModel(
@@ -26,6 +27,7 @@ class NotaRemisionModel {
         folioCarga: json["folioCarga"],
         cliente: json["cliente"],
         obra: json["obra"],
+        firmaElectronica: json["firmaElectronica"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -34,5 +36,6 @@ class NotaRemisionModel {
         "folioCarga": folioCarga,
         "cliente": cliente,
         "obra": obra,
+        "firmaElectronica": firmaElectronica
       };
 }

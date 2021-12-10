@@ -1,27 +1,23 @@
 import 'dart:convert';
-// import 'package:concretos2h/src/app/auth_api.dart';
-// import 'package:concretos2h/src/app/session.dart';
-// import 'package:intl/intl.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/services.dart';
 import 'models/nota-remision_model.dart';
+import 'package:concretos2h/src/app/session.dart';
+import 'package:concretos2h/src/principal/data/globales.dart' as global;
 
 class PedidosProvider {
-  final String _url = 'http://172.19.4.97/C2HApiControlInterno';
+  final _session = new Session();
 
   Future<List<NotaRemisionModel>> obtenerNotasRemision() async {
     try {
       final List<NotaRemisionModel> notasRemision = [];
-      final resp =
-          await http.get(Uri.parse('$_url/agentes/notas-remision-auxiliar/20'));
+      final resp = await http.get(Uri.parse(
+          '${global.urlWebApiPruebas}/agentes/notas-remision-auxiliar/${global.codUsuario}'));
       final Map<String, dynamic> decodedData = json.decode(resp.body);
 
       List<dynamic> listaNotas = decodedData['data'];
 
       listaNotas.forEach((nota) {
-        // int idNotaRemisionEnc = nota["idNotasRemisionEnc"];
-
         final notatemp = NotaRemisionModel.fromJson(nota);
         notasRemision.add(notatemp);
       });
@@ -35,15 +31,26 @@ class PedidosProvider {
 
   Future<String> obtenerPdfNotaRemision(int idNota) async {
     try {
+      String _token = '';
+
+      final result = await _session.get();
+      if (result != null) {
+        _token = result['accessToken'] as String;
+      }
+
       final resp = await http.get(
         Uri.parse(
-            'http://hector14-001-site5.etempurl.com/dosificador/notaRemision-auxiliar/pdf/$idNota'),
+            '${global.urlWebApi}/dosificador/notaRemision-auxiliar/pdf/$idNota'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbnNlbG1vb3J0aXpAY29uY3JldG9zMmguY29tIiwiaWRVc3VhcmlvIjoiMyIsImNvZEVtcGxlYWRvIjoiOCIsInVzdWFyaW8iOiJhbnNlbG1vb3J0aXpAY29uY3JldG9zMmguY29tIiwibm9tYnJlIjoiQW5zZWxtbyBPcnRpeiIsImp0aSI6IjY2YzI1MTFhLTZhYWYtNGFlZS1hZTUyLTI4NzlkOWNhMmRkZSIsImlhdCI6IjA4LzEyLzIwMjEgMTE6Mzg6NTQgcC4gbS4iLCJuYmYiOjE2MzkwMDY3MzQsImV4cCI6MTY3MDExMDczNCwiaXNzIjoiaHR0cDovL3d3dy5jb25jcmV0b3MyaC5jb20iLCJhdWQiOiJTaXN0ZW1hIEFnZW50ZXMifQ.thTbzgcR9jsYyQK82QX58yGieIKKIbB3UmMihR1Yd1E',
+          'Authorization': 'Bearer $_token',
         },
       );
+
+      if(resp.statusCode == 500){
+         return "";
+      }
+
       final Map<String, dynamic> decodedData = json.decode(resp.body);
       final String notaPdfBase64 = decodedData['data'];
 
@@ -54,7 +61,8 @@ class PedidosProvider {
     }
   }
 
-  Future<Map<String, dynamic>> guardarFirmaDigital(var data, int idNotaRemision) async {
+  Future<Map<String, dynamic>> guardarFirmaDigital(
+      var data, int idNotaRemision) async {
     try {
       final firmaData = {
         "idNotaRemisionFirma": "0",

@@ -6,6 +6,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // theme: ThemeData.from(colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)),
         localizationsDelegates: [
           GlobalMaterialLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
           const Locale('es', ''), // Spanish, no country code
         ],
         debugShowCheckedModeBanner: false,
-        initialRoute: 'login',
+        initialRoute: 'controlador',
         routes: getRoutes());
   }
 }
