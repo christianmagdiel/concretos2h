@@ -21,6 +21,14 @@ class CustomDrawer {
   static _onTapDrawer(int itemPos, BuildContext context) {
     selectedDrawerIndex = itemPos;
     switch (itemPos) {
+      case 0:
+       DrawerOption().perfilUsuario(context);
+        break;
+      case 1:
+        DrawerOption().notasRemision(context);
+        break;
+      case 2:
+        break;
       case 3:
         DrawerOption().cerrarSesion(context);
         break;
@@ -56,12 +64,14 @@ class CustomDrawer {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white,width: 2),
                         shape: BoxShape.circle, color: Colors.red),
                     child: CircleAvatar(
                       backgroundImage:
-                          AssetImage("assets/images/concreto2h.png"),
+                          AssetImage("assets/images/user_default.png"),
                     ),
                   ),
+                  SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,

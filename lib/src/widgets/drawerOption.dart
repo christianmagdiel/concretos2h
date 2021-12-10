@@ -5,6 +5,15 @@ import 'package:flutter/material.dart';
 class DrawerOption {
   Session _sesion = new Session();
 
+
+  perfilUsuario(BuildContext context) {
+    Navigator.pushReplacementNamed(context, 'perfil');
+  }
+
+  notasRemision(BuildContext context) {
+    Navigator.pushReplacementNamed(context, 'pedidos');
+  }
+
   cerrarSesion(BuildContext context) {
     Dialogs.confirm(context,
         btnTextCancelar: "Cancelar",

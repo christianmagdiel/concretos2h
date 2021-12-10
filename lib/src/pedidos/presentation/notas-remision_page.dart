@@ -43,7 +43,10 @@ class _PedidosPageState extends State<PedidosPage> {
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Text(
               'NOTAS DE REMISIÓN',
-              style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
             ),
           ),
         ),
@@ -52,6 +55,10 @@ class _PedidosPageState extends State<PedidosPage> {
         )
       ])),
     );
+  }
+
+  Future _refreshData() async {
+    notasRemision.cargarNotasRemision();
   }
 
   _loadData(PedidosBloc notaRemisionBloc, BuildContext context) {
@@ -75,13 +82,18 @@ class _PedidosPageState extends State<PedidosPage> {
               initialData: false,
               builder: (BuildContext contextLoading, AsyncSnapshot snapshot) {
                 if (!snapshot.data) {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: notasModel!.length,
-                  
-                    itemBuilder: (BuildContext contextLista, i) => _crearItem(
-                        contextPrincipal, notasModel[i], notaRemisionBloc),
-                        
+                  return RefreshIndicator(
+                    onRefresh: _refreshData,
+                    strokeWidth: 3,
+                    backgroundColor: Colors.blueAccent,
+                    color: Colors.white,
+                    displacement: 200,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: notasModel!.length,
+                      itemBuilder: (BuildContext contextLista, i) => _crearItem(
+                          contextPrincipal, notasModel[i], notaRemisionBloc),
+                    ),
                   );
                 } else {
                   return Container(
@@ -92,7 +104,9 @@ class _PedidosPageState extends State<PedidosPage> {
                           'Espere un momento por favor...',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic),
+                              fontStyle: FontStyle.italic,
+                              color: Colors.blue,
+                              fontSize: 18),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -114,32 +128,44 @@ class _PedidosPageState extends State<PedidosPage> {
 
   Widget _crearItem(BuildContext context, NotaRemisionModel nota,
       PedidosBloc notaRemisionBloc) {
-    return ListTile(
-      leading: Padding(
-        padding: const EdgeInsets.only(top: 10.0),
-        child: Column(
-          children: [
-            // Text('${nota.folioCarga}'),
-            Text('${nota.idNotaRemisionEnc}'),
+    return Card(
+      elevation: 5,
+      child: ListTile(
+        leading: Container(
+            height: 35,
+            width: 35,
+            decoration: BoxDecoration(
+                color: Color(0xff838383),
+                borderRadius: BorderRadius.circular(12)),
+            child: Center(
+                child: Text(
+              '${nota.idNotaRemisionEnc}',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold),
+            ))),
+        title: Text('${nota.cliente}'),
+        subtitle: Text('${nota.obra}'),
+        trailing: Wrap(
+          spacing: 15,
+          children: <Widget>[
+            GestureDetector(
+              child: Icon(Icons.picture_as_pdf,
+                  color: Colors.blueAccent, size: 30),
+              onTap: () => mostrarNotaRemision(context, notaRemisionBloc, nota),
+            ),
+
+            nota.firmaElectronica
+                ? Icon(Icons.edit_location_sharp, color: Colors.green, size: 30)
+                : Icon(
+                    Icons.edit_off,
+                    size: 30,
+                  )
+
+            // SizedBox(width: 1,),
           ],
         ),
-      ),
-      title: Text('${nota.cliente}'),
-      subtitle: Text('${nota.obra}'),
-      trailing: Wrap(
-        spacing: 15,
-        children: <Widget>[
-          GestureDetector(
-            child: Icon(Icons.picture_as_pdf, color: Colors.blueAccent,size: 30),
-            onTap: () => mostrarNotaRemision(context, notaRemisionBloc, nota),
-          ),
-
-          nota.firmaElectronica
-              ? Icon(Icons.check_circle, color: Colors.green,size: 30)
-              : Icon(Icons.check_circle, size: 30,)
-
-          // SizedBox(width: 1,),
-        ],
       ),
     );
   }
@@ -149,12 +175,12 @@ class _PedidosPageState extends State<PedidosPage> {
     await notaRemisionBloc.mostrarPdf(nota.idNotaRemisionEnc);
     Uint8List bytes = base64Decode(global.pdfDataBase64.replaceAll('\n', ''));
     final output = await getTemporaryDirectory();
-    final file = File("${output.path}/notaRemision.pdf");
+    final file =
+        File("${output.path}/notaRemision-${nota.idNotaRemisionEnc}.pdf");
     await file.writeAsBytes(bytes.buffer.asUint8List());
-
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => PDFScreen(bytes, nota.idNotaRemisionEnc)));
+            builder: (context) => PDFScreen(bytes, nota, file.path)));
   }
 }

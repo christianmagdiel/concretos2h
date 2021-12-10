@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:concretos2h/src/principal/presentation/perfil_page.dart';
 import 'package:concretos2h/src/pedidos/presentation/notas-remision_page.dart';
 import 'package:concretos2h/src/principal/presentation/login_page.dart';
 import 'package:concretos2h/src/principal/presentation/controlador_page.dart';
@@ -9,5 +10,6 @@ Map<String, WidgetBuilder> getRoutes() {
     'controlador': (BuildContext context) => ControladorPage(),
     'login': (BuildContext context) => LoginPage(),
     'pedidos': (BuildContext context) => PedidosPage(),
+    'perfil': (BuildContext context) => PerfilPage(),
   };
 }
