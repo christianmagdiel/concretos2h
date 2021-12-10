@@ -34,10 +34,8 @@ class _PedidosPageState extends State<PedidosPage> {
         title: Text('Consulta de notas de remisión'),
       ),
       drawer: Theme(
-        data: Theme.of(context).copyWith(
-          canvasColor: Colors.white
-        ),
-        child: CustomDrawer.getDrawer(context)),
+          data: Theme.of(context).copyWith(canvasColor: Colors.white),
+          child: CustomDrawer.getDrawer(context)),
       body: SafeArea(
           child: Column(children: <Widget>[
         Align(
@@ -80,8 +78,10 @@ class _PedidosPageState extends State<PedidosPage> {
                   return ListView.builder(
                     shrinkWrap: true,
                     itemCount: notasModel!.length,
+                  
                     itemBuilder: (BuildContext contextLista, i) => _crearItem(
                         contextPrincipal, notasModel[i], notaRemisionBloc),
+                        
                   );
                 } else {
                   return Container(
@@ -126,14 +126,18 @@ class _PedidosPageState extends State<PedidosPage> {
       ),
       title: Text('${nota.cliente}'),
       subtitle: Text('${nota.obra}'),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      trailing: Wrap(
+        spacing: 15,
         children: <Widget>[
-          ElevatedButton(
-            onPressed: () =>
-                mostrarNotaRemision(context, notaRemisionBloc, nota),
-            child: Text('PDF - ${nota.firmaElectronica}'),
+          GestureDetector(
+            child: Icon(Icons.picture_as_pdf, color: Colors.blueAccent,size: 30),
+            onTap: () => mostrarNotaRemision(context, notaRemisionBloc, nota),
           ),
+
+          nota.firmaElectronica
+              ? Icon(Icons.check_circle, color: Colors.green,size: 30)
+              : Icon(Icons.check_circle, size: 30,)
+
           // SizedBox(width: 1,),
         ],
       ),
