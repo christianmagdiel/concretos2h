@@ -10,22 +10,32 @@ class UsuarioProvider {
   Future<Map<String, dynamic>> login(String user, String password) async {
     try {
       final authData = {"usuario": user, "password": password};
-      final resp = await http.post(Uri.parse('${global.urlWebApiPruebas}/seguridad/login/'),
+      final resp = await http.post(
+          Uri.parse('${global.urlWebApiPruebas}/seguridad/login/'),
           headers: {
             'Content-Type': 'application/json',
           },
           body: json.encode(authData));
       Map<String, dynamic> decodedResp = json.decode(resp.body);
-      if (resp.statusCode == 200 && decodedResp['value'] ) {
-        final token = decodedResp['data']['accessToken']['accessToken'] as String;
-        final refreshToken = decodedResp['data']['accessToken']['refreshToken'] as String;
-        final expiresIn = decodedResp['data']['accessToken']['expiresIn'] as int;
+      if (resp.statusCode == 200 && decodedResp['value']) {
+        final token =
+            decodedResp['data']['accessToken']['accessToken'] as String;
+        final refreshToken =
+            decodedResp['data']['accessToken']['refreshToken'] as String;
+        final expiresIn =
+            decodedResp['data']['accessToken']['expiresIn'] as int;
         final usuario = decodedResp['data']['user']['nombre'] as String;
         final correo = decodedResp['data']['user']['usuario'] as String;
         final puesto = decodedResp['data']['user']['tipoEmpleado'] as String;
         final codUsuario = decodedResp['data']['user']['codEmpleado'] as int;
+
+        global.usuario = usuario;
+        global.correoUsuario = correo;
+        global.puestoUsuario = puesto;
+        global.codUsuario = codUsuario;
         
-        await _session.set(token, refreshToken, expiresIn,codUsuario, usuario, correo, puesto);
+        await _session.set(token, refreshToken, expiresIn, codUsuario, usuario,
+            correo, puesto);
 
         return {'ok': true, 'token': decodedResp['data']['accessToken']};
       } else {
@@ -43,7 +53,8 @@ class UsuarioProvider {
       if (result != null) _token = result['accessToken'] as String;
 
       final authData = {"usuario": 'a31', "password": '123'};
-      final resp = await http.post(Uri.parse('${global.urlWebApiPruebas}/seguridad/login/'),
+      final resp = await http.post(
+          Uri.parse('${global.urlWebApiPruebas}/seguridad/login/'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $_token',
