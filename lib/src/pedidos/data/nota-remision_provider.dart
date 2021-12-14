@@ -89,7 +89,7 @@ class PedidosProvider {
       };
       final resp = await http.post(
           Uri.parse(
-              '${global.urlWebApiPruebas}/dosificador/nota-remision-firma/guardar'),
+              '${global.urlWebApi}/dosificador/nota-remision-firma/guardar'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $_token',

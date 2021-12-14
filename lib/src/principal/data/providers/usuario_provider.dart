@@ -11,7 +11,7 @@ class UsuarioProvider {
     try {
       final authData = {"usuario": user, "password": password};
       final resp = await http.post(
-          Uri.parse('${global.urlWebApiPruebas}/seguridad/login/'),
+          Uri.parse('${global.urlWebApi}/seguridad/login/'),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -54,7 +54,7 @@ class UsuarioProvider {
 
       final authData = {"usuario": 'a31', "password": '123'};
       final resp = await http.post(
-          Uri.parse('${global.urlWebApiPruebas}/seguridad/login/'),
+          Uri.parse('${global.urlWebApi}/seguridad/login/'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $_token',
