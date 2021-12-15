@@ -8,7 +8,8 @@ import 'package:concretos2h/src/principal/data/globales.dart' as global;
 class PedidosProvider {
   final _session = new Session();
 
-  Future<List<NotaRemisionModel>> obtenerNotasRemision() async {
+  // Future<List<NotaRemisionModel>> obtenerNotasRemision() async {
+    Future<Map<String, dynamic>>  obtenerNotasRemision() async {
     try {
       final List<NotaRemisionModel> notasRemision = [];
       final resp = await http.get(Uri.parse(
@@ -22,16 +23,19 @@ class PedidosProvider {
             final notatemp = NotaRemisionModel.fromJson(nota);
             notasRemision.add(notatemp);
           });
-          return notasRemision;
+          // return notasRemision;
+
+             return {'value': true, 'data': notasRemision};
         } else {
-          return [];
+             return {'value': false,'data': decodedData['message']};
+          // return [];
         }
       } else {
-        return [];
+           return {'value': false, 'data': 'No se realizo la conexion con el servidor'};
+        // return [];
       }
     } on PlatformException catch (e) {
-      print('ERROR ${e.code} : ${e.message}');
-      return [];
+         return {'value': false, 'data': 'Ocurrio una excepción ${e.message}'};
     }
   }
 
@@ -89,7 +93,7 @@ class PedidosProvider {
       };
       final resp = await http.post(
           Uri.parse(
-              '${global.urlWebApi}/dosificador/nota-remision-firma/guardar'),
+              '${global.urlWebApiPruebas}/dosificador/nota-remision-firma/guardar'),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $_token',

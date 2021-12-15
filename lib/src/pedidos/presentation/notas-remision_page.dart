@@ -67,7 +67,7 @@ class _PedidosPageState extends State<PedidosPage> {
     return StreamBuilder(
       stream: notaRemisionBloc.notasRemisionStream,
       builder: (BuildContext contextPrincipal,
-          AsyncSnapshot<List<NotaRemisionModel>> snapshot) {
+          AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (!snapshot.hasData ||
             snapshot.connectionState == ConnectionState.waiting ||
             (notaRemisionBloc.cargandoNotasRemision)) {
@@ -75,8 +75,13 @@ class _PedidosPageState extends State<PedidosPage> {
             padding: EdgeInsets.only(bottom: size.height * .35),
             child: Center(child: CircularProgressIndicator()),
           );
+        } else if (!snapshot.data!["value"]) {
+          return Container(
+            color: Colors.red,
+            child: Text(snapshot.data!["data"]),
+          );
         } else {
-          List<NotaRemisionModel>? notasModel = snapshot.data;
+          List<NotaRemisionModel>? notasModel = snapshot.data!["data"];
           return StreamBuilder<Object>(
               stream: notaRemisionBloc.isLoadingStream,
               initialData: false,

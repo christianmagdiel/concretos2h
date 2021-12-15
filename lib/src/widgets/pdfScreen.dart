@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'package:concretos2h/src/pedidos/data/blocs/pedidos_bloc.dart';
@@ -147,15 +150,21 @@ class _PDFScreenState extends State<PDFScreen> {
 
   Future<void> _handleSaveButtonPressed() async {
     // ignore: unused_local_variable
-    late Uint8List data;
+    var data;
     PedidosBloc notasRemision = new PedidosBloc();
     final ui.Image imageData =
         await _signaturePadKey.currentState!.toImage(pixelRatio: 3.0);
-    final ByteData? bytes =
-        await imageData.toByteData(format: ui.ImageByteFormat.png);
+    var bytes = await imageData.toByteData(format: ui.ImageByteFormat.rawRgba);
     if (bytes != null) {
       data = bytes.buffer.asUint8List();
     }
+
+// Use plugin [path_provider] to export image to storage
+    Directory? directory = await getExternalStorageDirectory();
+    String path = directory!.path;
+    print(path);
+    await Directory('$path/test').create(recursive: true);
+    File('$path/filename.jpg').writeAsBytesSync(bytes!.buffer.asInt8List());
 
     var result = await notasRemision.guardarFirma(
         data, this.widget.notaRemision.idNotaRemisionEnc);
@@ -163,6 +172,7 @@ class _PDFScreenState extends State<PDFScreen> {
     if (result['ok']) {
       Navigator.pushReplacementNamed(context, 'pedidos');
     }
+
     // setState(() {
     // _signatureData = data;
     // Image.memory(_signatureData) ASI SE MUESTRA LA IMAGGEN EN UN CONTAINER
